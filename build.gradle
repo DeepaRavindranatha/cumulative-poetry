@@ -16,6 +16,7 @@ plugins {
 jar {
   manifest { 
     attributes "Main-Class": "cumulative.poetry.Poet"
+
   }  
 
   from {

@@ -11,12 +11,15 @@ public class Poet {
 	private final static int RECITE_POEM = 1;
 	private final static String FLAG_RECITE_FOR_DAY_STR = "--reveal-for-day";
 	private final static String FLAG_RECITE_POEM_STR = "--recite";
+	private final static String FLAG_ECHO_STR = "--echo";
 	
 	private static final String POEM_START = "This is ";
 	private static final String POEM_END = ".";
 
 	private static int reciteOption;
 	private static int day;
+	private static boolean echo=false;
+	private static int echoCount = 0;
 	
 	private Map<Integer,String> poetryBook;
 
@@ -39,16 +42,19 @@ public class Poet {
 	public static void main(String[] args) {
 		Poet p = new Poet();
 
-		RuntimeArgs runtimeArgs = p.new RuntimeArgs(args);
+		RuntimeArgs.parse(args);
 
-		if(runtimeArgs.flagPresent(FLAG_RECITE_FOR_DAY_STR)){
+		if(RuntimeArgs.flagPresent(FLAG_RECITE_FOR_DAY_STR)){
 				reciteOption = RECITE_FOR_DAY;
-				day = runtimeArgs.getFlagValue(FLAG_RECITE_FOR_DAY_STR); 
+				day = RuntimeArgs.getFlagValue(FLAG_RECITE_FOR_DAY_STR); 
 		}
-		else if(runtimeArgs.flagPresent(FLAG_RECITE_POEM_STR)) {
+		else if(RuntimeArgs.flagPresent(FLAG_RECITE_POEM_STR)) {
 				reciteOption = RECITE_POEM;		
 		}
-	
+		if(RuntimeArgs.flagPresent(FLAG_ECHO_STR)) {
+			echo = true;
+			echoCount = 1;
+		}
 		String poem = p.recite();
 		System.out.println(poem);		
 	}
@@ -72,7 +78,9 @@ public class Poet {
 		StringBuilder poem = new StringBuilder();
 		poem.append(POEM_START);
 		for (int i = vForTheDay; i > 0; i--) {
-			poem.append(poetryBook.get(i)).append("\n").append("\t");
+			for(int j = 0; j < (echoCount+1); j++) {
+				poem.append(poetryBook.get(i)).append("\n").append("\t");
+			}
 		}
 		poem.deleteCharAt(poem.length()-1);
 		poem.deleteCharAt(poem.length()-1);
@@ -85,15 +93,10 @@ public class Poet {
 	 * @author hp
 	 *
 	 */
-	class RuntimeArgs {
-		  private String[] args = null;
-		  private HashMap<String, Integer> flags = new HashMap<String, Integer>();
+	static class RuntimeArgs {
+		  private static HashMap<String, Integer> flags = new HashMap<String, Integer>();
 
-		  public RuntimeArgs(String[] args) {
-			  parse(args);
-		  }
-
-		public void  parse(String[] arguments) {
+		public static void  parse(String[] arguments) {
 			for (int i = 0; i < arguments.length; i++) {
 				if (arguments[i].startsWith("-")) {
 					String flag = arguments[i];
@@ -105,11 +108,11 @@ public class Poet {
 			}
 		  }
 		
-		  private boolean flagPresent(String flag) {
+		  private static boolean flagPresent(String flag) {
 			    return flags.containsKey(flag);			  
 		  }
 
-		private Integer getFlagValue(String flag) {
+		private static Integer getFlagValue(String flag) {
 			return flags.get(flag);
 		}
 	}
